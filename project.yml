@@ -1,0 +1,42 @@
+name: MotoTracker
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "17.0"
+packages:
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    from: 1.15.0
+targets:
+  MotoTracker:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources/MotoTracker
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.mototracker
+        INFOPLIST_FILE: Sources/MotoTracker/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_STYLE: Automatic
+  MotoTrackerTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests/MotoTrackerTests
+    dependencies:
+      - target: MotoTracker
+      - package: SnapshotTesting
+    settings:
+      base:
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/MotoTracker.app/MotoTracker"
+schemes:
+  MotoTracker:
+    build:
+      targets:
+        MotoTracker: all
+        MotoTrackerTests: [test]
+    test:
+      targets:
+        - MotoTrackerTests
