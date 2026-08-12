@@ -3,7 +3,7 @@ on: [push, workflow_dispatch]
 
 jobs:
   preview:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - name: Install XcodeGen
@@ -23,7 +23,7 @@ jobs:
           path: '**/__Snapshots__/**/*.png'
 
   build-ipa:
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - name: Install XcodeGen
