@@ -1,0 +1,52 @@
+name: Build and Preview
+on: [push, workflow_dispatch]
+
+jobs:
+  preview:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Run snapshot tests (captures d'écran)
+        run: |
+          xcodebuild test \
+            -project MotoTracker.xcodeproj \
+            -scheme MotoTracker \
+            -destination 'platform=iOS Simulator,name=iPhone 15'
+      - name: Upload preview screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-screenshots
+          path: '**/__Snapshots__/**/*.png'
+
+  build-ipa:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install XcodeGen
+        run: brew install xcodegen
+      - name: Generate Xcode project
+        run: xcodegen generate
+      - name: Build unsigned app for device
+        run: |
+          xcodebuild build \
+            -project MotoTracker.xcodeproj \
+            -scheme MotoTracker \
+            -configuration Release \
+            -sdk iphoneos \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO \
+            -derivedDataPath build
+      - name: Package .ipa
+        run: |
+          mkdir Payload
+          cp -r build/Build/Products/Release-iphoneos/MotoTracker.app Payload/
+          zip -r MotoTracker.ipa Payload
+      - name: Upload .ipa
+        uses: actions/upload-artifact@v4
+        with:
+          name: MotoTracker-ipa
+          path: MotoTracker.ipa
